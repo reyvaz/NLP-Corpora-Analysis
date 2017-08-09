@@ -1,0 +1,3 @@
+badstem1
+badstem2
+badstem3etc

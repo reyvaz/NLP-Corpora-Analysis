@@ -1,0 +1,7 @@
+setwd("/Users/reysbar/Google Drive/JHCapstone")#
+source("report_dataGenerator.R")
+Sys.time
+Sys.time()
+strftime(Sys.time(), format="%H:%M:%S")
+setwd("/Users/reysbar/Google Drive/JHCapstone")#
+source("report_dataGenerator.R")

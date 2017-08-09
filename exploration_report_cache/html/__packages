@@ -1,0 +1,17 @@
+base
+ggplot2
+plyr
+dplyr
+gridExtra
+lattice
+MASS
+memisc
+data.table
+ngram
+knitr
+pander
+kableExtra
+NLP
+tm
+RColorBrewer
+wordcloud

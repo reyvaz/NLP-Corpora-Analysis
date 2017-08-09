@@ -1,0 +1,432 @@
+---
+title: "Natural Language Processing: Corpora Exploration"
+author: "by Reynaldo Vazquez"
+date: "8/5/2017"
+output: 
+  html_document: 
+    highlight: tango
+    theme: cerulean
+theme: flatly
+---
+<style>
+  .col2 {
+    columns: 2 200px;         /* number of columns and width in pixels*/
+    -webkit-columns: 2 200px; /* chrome, safari */
+    -moz-columns: 2 200px;    /* firefox */
+  }
+  .col3 {
+    columns: 3 100px;
+    -webkit-columns: 3 100px;
+    -moz-columns: 3 100px;
+  }
+  body {
+  text-align: justify}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, cache = T, warning=F, message=F, 
+                      fig.align = 'center')
+```
+
+### Summary  
+
+This is an initial analysis of three corpora with the purpose of building a word predictor. The corpora were originally collected by a web crawler from publicly available news, personal blogs, and  twitter posts. More information [here](https://web-beta.archive.org/web/20160930083655/http://www.corpora.heliohost.org/aboutcorpus.html). The corpora can be downloaded [here](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip).  
+
+The analysis finds that a short dictionary of the most frequently used words suffices to cover vast parts of corpora. In the analysis below, an 8,000 word dictionary covers over 90% of a 100 million word corpus with nearly 0.77 million unique words. Additonally, some platform specific words (i.e. Twitter short words) can dominate the word predictor. That effect might be undesirable when the text predictor is used for other purposes, but useful when the predictor can detect the purpose of its use.  
+
+1. Required Packages
+```{r packs, echo = T, warning=FALSE, message=FALSE, cache = F}
+require(data.table); require(ggplot2); require(dplyr); require(grid)
+require(tm); require(gridExtra); require(memisc); require(wordcloud)
+require(knitr); require(pander); require(kableExtra); require(ngram)
+```
+
+2. Load or create required work space
+```{r loadData, echo=T}
+setwd("/Users/reysbar/MEGA/corpus_analysis")
+if (!file.exists("reportWorkspace.RData")) {
+    source("report_dataGenerator.R")
+}
+load("reportWorkspace.RData")
+```
+
+### Corpora
+
+This analysis uses the complete 3 corpora from the English database. It then constructs 5 corpora as follows:
+
+**Blog** : The complete, unedited  corpus contained in the file `en_US.blogs.txt`.  
+**News** : The complete, unedited  corpus contained in the file `en_US.news.txt`.  
+**Twitter** : The complete, unedited  corpus contained in the file `en_US.twitter.txt`.  
+**Total (orig.)**: The complete, unedited  combination of the 3 corpora above.  
+**Total (proc.)**: The combination of the preprocessed Blog, News, and Twitter corpora. 
+
+### Preprocessing:   
+For the Total (proc.) corpus, the corpora were processed as follows (in successive order):  
+
+<div class="col3">
+1.	Convert text to lower-case
+2.	Remove email addresses, HTML code, and URLs
+3.  Replace acronyms
+4.	Replace common abbreviations
+5.	Decontract common contractions
+6.	Cut lines at remaining periods
+7.	Remove lines containing profanity
+8.	Remove remaining ( ‘s )
+9.	Keep only alphabetic characters
+10.	Remove excessive space
+</div>
+
+### Corpora Statistics  
+
+**Table 1** reports basic statistics. The 3 original corpora, Blog, News and Twitter are roughly comparable in terms of file size and number of words. A *word* here is defined as one or more characters that preceed a space or line break. Bacause of thier nature (i.e. the character limits on twitter), number of lines and and words per line vary more significantly. From the last two columns we see that text preprocessing reduced the number of words by about 2%, whereas such change had a more considerable 6% reduction in file size, and a dramatic 70% reduction in unique words. The increase in total lines, and the reduction in words per line, are due to splitting lines at sentence periods. 
+
+Unique word count in the original 3 corpora, can be speculated, says more about their sources. News having less unique *words* is possibly due to professional journalists and writers producing more grammatically rigorous corpora. Corpora from news sources could be processed less aggressively than others to save processing time, and gain grammar information.  
+
+```{r wordstats, echo=FALSE}
+betterNames <- c("Blog", "News", "Twitter", "Total (orig.)", "Total (proc.)")
+colnames(corporaStats)  <- betterNames
+uniqueWords <- ngramCounts[1,]/(10^6)
+wordStats   <- corporaStats[1:5,]
+wordStats   <- rbind(wordStats, uniqueWords)
+wordStats[2,] <- wordStats[2,]/(10^3)
+rownames(wordStats) <- c("File size (MB) ", "Total lines (Millions) ", 
+             "Total words (Millions) ", "Avg. words per line ", 
+             "Max. words in a line ", "Unique Words (Millions) ")
+wordStats2 <- format(wordStats, decimal.mark=".", big.mark=",", scientific=F,
+                    digits = 2)
+wordStats2[5,] <- round(wordStats[5,])
+kable(wordStats2, format = "html", caption = "Table 1. Corpora Statistics", 
+      align=c(rep('r', 5))) %>%
+    kable_styling(bootstrap_options = c("striped", "condensed", "bordered"),
+                full_width = F) 
+rm(uniqueWords,wordStats, wordStats2)
+```
+
+### Dictionary Coverage  
+
+**Table 2** shows the percentage of each corpora covered  by a frequency ranked dictionary.  A dictionary of the most frequent 292 words in the Total original corpus suffices to cover 50\% of all words in the entire corpus. Preprocessing reduces this dictionary to 122 words. A 7,411 word dictionary will cover 90\% of the preprocessed corpus. 
+
+```{r dict, echo=FALSE}
+dictSize   <- corporaStats[6:8,]     ## these are actual units
+rownames(dictSize) <- c("50 percent", "75 percent", "90 percent")
+dictSize <- format(dictSize, decimal.mark=".", big.mark=",", scientific=F)
+kable(dictSize, format = "html", 
+      caption = "Table 2. Frequency Ranked Dictionary Coverage by Corpora", 
+      align=c(rep('r', 5))) %>%
+    kable_styling(bootstrap_options = c("striped", "condensed", "bordered"),
+                full_width = F) 
+rm(dictSize)
+```
+
+When approaching 10,000 words, dictionary coverage in the preprocessed corpus increases very slowly. **Fig. 1** shows that the vast majority of the corpus can be covered by the first few thousand most frequent words. Going from a 10,000 to a 40,000 word dictionary increases coverage by less than 6\%. A 50,000 word dictionary covers only 0.4\% more than a 40,000 word dictionary. These facts could be useful while evaluating coverage vs. efficiency in the construction of the word predictor.
+
+###### Fig. 1 Dictionary Length vs Coverage in the Processed Corpus
+```{r percent, echo=FALSE}
+onegram <- cleancorpus1gram
+cumfreq <- cumsum(onegram$freq)
+onegram <- cbind(onegram, cumfreq)
+X       <- c(1:dim(onegram)[1])
+wordsTotal  <- corporaStats[3,5]*(10^6)
+dictPercent <- 100*cumfreq/wordsTotal
+onegram     <- cbind(X, onegram, dictPercent)
+onegram     <- onegram[1:60000, c(1,5)]
+
+binIndexFig1L  <- seq(1000, 10000, by=1000)
+onegramFig1L   <- onegram[binIndexFig1L,]
+onegramFig1L$X <- format(onegramFig1L$X, big.mark=",", scientific=FALSE)
+onegramFig1L$X <- factor(onegramFig1L$X, levels = onegramFig1L$X)
+accumPct <- onegramFig1L$dictPercent
+accumPct <- paste(sprintf("%.1f", accumPct), "%", sep="")
+Fig1L    <- ggplot(onegramFig1L, aes(X, dictPercent)) +
+    geom_bar(stat = "identity", fill = "#004080", alpha = 0.9) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 35, hjust = 1)) +
+    xlab("Number of Frequency Ranked Words") + 
+    ylab("Cummulative Coverage (%)") +
+    ggtitle("Coverage by Most Frequent Words") +
+    geom_text(aes(label=accumPct), position=position_dodge(width=.7), 
+              vjust=-0.2, size=3)
+```
+
+```{r percent2, echo=FALSE, fig.width=10, fig.height=4}
+binIndexFig1R  <- seq(40000, 50000, by=1000)
+onegramFig1R   <- onegram[binIndexFig1R,]
+onegramFig1R$X <- format(onegramFig1R$X, big.mark=",", scientific=FALSE)
+onegramFig1R$X <- factor(onegramFig1R$X, levels = onegramFig1R$X)
+accumPctR <- onegramFig1R$dictPercent
+accumPctR <- paste(sprintf("%.1f", accumPctR), "%", sep="")
+Fig1R     <- ggplot(onegramFig1R, aes(X, dictPercent)) +
+    geom_bar(stat = "identity", fill = "#004080", alpha = 0.9) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 35, hjust = 1)) +
+    xlab("Number of Frequency Ranked Words") + ylab(" ") +
+    ggtitle("Coverage by Most Frequent Words") +
+    geom_text(aes(label=accumPctR), position=position_dodge(width=.7), 
+              vjust=-0.2, size=3)
+grid.arrange(Fig1L, Fig1R, ncol = 2)
+rm(onegramFig1L, accumPct, binIndexFig1L, binIndexFig1R, accumPctR, X, cumfreq)
+```
+
+
+```{r blog1, echo=FALSE}
+most <- 10    ## this is the number for the most frequent sample
+require(ggplot2)
+blog1 <- head(blog1gram, most)
+pcntB <- blog1$freq/(as.numeric(corporaStats[3,1])*10^4)
+pcntB <- paste(sprintf("%.2f", pcntB), "%", sep="")
+b1 <- ggplot(blog1, aes(x=reorder(ngrams,-freq), y=freq/(10^6), fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() + guides(fill=FALSE) +
+    xlab("Words") + ylab("Frequency (Millions)") +
+    labs(title="Blogs Corpus Most Frequent Words")+ 
+    scale_fill_gradient(low="#0080ff",high="#004d99") +
+    geom_text(aes(label=pcntB), position=position_dodge(width=.7), 
+              vjust=-0.2, size=3)
+```
+
+```{r news1, echo=FALSE}
+require(ggplot2)
+news1 <- head(news1gram, most)
+pcntN <- news1$freq/(as.numeric(corporaStats[3,2])*10^4)
+pcntN <- paste(sprintf("%.2f", pcntN), "%", sep="")
+n1 <- ggplot(news1, aes(x=reorder(ngrams,-freq), y=freq/(10^6), fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() + guides(fill=FALSE) +
+    xlab("Words") + ylab("Frequency (Millions)") +
+    labs(title="News Corpus Most Frequent Words")+ 
+    scale_fill_gradient(low="#ff3300",high="#991f00") +
+    geom_text(aes(label=pcntN), position=position_dodge(width=.7), 
+              vjust=-0.2, size=3)
+```
+### Most Frequent Words  
+
+**Fig. 2** shows the absolute and relative usage of the 10 most frequent words in the 3 original corpora. Not surprisingly,  the most frequent words are stop words and are common across.  To note though, is the relatively less frequent “the” and the more frequent “you” in the Twitter corpus, more on this below.
+
+###### Fig. 2 Most Frequent Words in Individual Corpora
+```{r twit1, echo=FALSE, fig.width=9.5, fig.height=7.5}
+require(ggplot2);require(grid); require(gridExtra)
+twit1 <- head(twit1gram, most)
+pcntT <- twit1$freq/(as.numeric(corporaStats[3,3])*10^4)
+pcntT <- paste(sprintf("%.2f", pcntT), "%", sep="")
+t1 <- ggplot(twit1, aes(x=reorder(ngrams,-freq), y=freq/(10^6), fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() + guides(fill=FALSE) +
+    xlab("Words") + ylab("Frequency (Millions)") +
+    labs(title="Twitter Corpus Most Frequent Words")+ 
+    scale_fill_gradient(low="#39ac39",high="#206020") +
+    geom_text(aes(label=pcntT), position=position_dodge(width=.7), 
+              vjust=-0.2, size=3)
+
+grid.arrange(b1, n1, t1, ncol = 2)
+rm(pcntB, pcntN, pcntT, blog1, news1, twit1)
+```
+<div class="col2">
+
+### Non Stop Words
+<br><br>
+```{r stopList, echo=FALSE}
+stopList   <- data.table(word=stopwords(kind = "en"))
+stopDummy  <- c(rep(1, length(stopList)))
+stopList   <- data.table(stopList, stopDummy)
+trim       <- function (x) gsub("^\\s+|\\s+$", "", x)
+rm(stopDummy)
+```
+
+```{r blogNonStop, echo=FALSE}
+blogWords <- blog1gram
+blogWords <- setnames(blogWords, "ngrams", "word")
+blogWords$word <- trim(as.character(blogWords$word))
+blogWords$word <- tolower(blogWords$word)
+blogWords <- blogWords[-grep("[^[:alpha:]]", blogWords$word)]
+idx <- which(sapply(1:dim(blogWords)[1], function(x)  nchar(blogWords[x,1]))>1)
+blogWords <- blogWords[idx]
+setkey(blogWords, word)
+setkey(stopList, word)
+blogWords   <- stopList[blogWords, nomatch=NA]
+blogWords   <- blogWords[order(-freq)]
+blogNonStop <- blogWords[which(is.na(blogWords$stopDummy)), c(1,3)]
+```
+
+```{r newsNonStop, echo=FALSE}
+newsWords <- news1gram
+newsWords <- setnames(newsWords, "ngrams", "word")
+newsWords$word <- trim(as.character(newsWords$word))
+newsWords$word <- tolower(newsWords$word)
+newsWords      <- newsWords[-grep("[^[:alpha:]]", newsWords$word)]
+idx <- which(sapply(1:dim(newsWords)[1], function(x)  nchar(newsWords[x,1]))>1)
+newsWords <- newsWords[idx]
+setkey(stopList, word)
+setkey(newsWords, word)
+newsWords   <- stopList[newsWords, nomatch=NA]
+newsWords   <- newsWords[order(-freq)]
+newsNonStop <- newsWords[which(is.na(newsWords$stopDummy)), c(1,3)]
+```
+
+```{r twitNonStop, echo=FALSE, fig.width=9.5, fig.height=3.5}
+twitWords <- twit1gram
+twitWords <- setnames(twitWords, "ngrams", "word")
+twitWords$word <- trim(as.character(twitWords$word))
+twitWords$word <- tolower(twitWords$word)
+twitWords      <- twitWords[-grep("[^[:alpha:]]", twitWords$word)]
+idx <- which(sapply(1:dim(twitWords)[1], function(x)  nchar(twitWords[x,1]))>1)
+twitWords   <- twitWords[idx]
+setkey(stopList, word)
+setkey(twitWords, word)
+twitWords   <- stopList[twitWords, nomatch=NA]
+twitWords   <- twitWords[order(-freq)]
+twitNonStop <- twitWords[which(is.na(twitWords$stopDummy)), c(1,3)]
+```
+
+
+```{r cleanNonStop, echo=FALSE}
+cleanWords <- cleancorpus1gram[1:250]
+cleanWords <- setnames(cleanWords, "ngrams", "word")
+cleanWords$word <- trim(as.character(cleanWords$word))
+setkey(stopList, word)
+setkey(cleanWords, word)
+cleanWords   <- stopList[cleanWords, nomatch=NA]
+cleanWords   <- cleanWords[order(-freq)]
+cleanNonStop <- cleanWords[which(is.na(cleanWords$stopDummy)), c(1,3)]
+```
+
+
+**Table 3** shows the most frequent non stop words for selected corpora. Note the high ranking of the word “love” in the Twitter corpus which ranks much lower in the other. However, more notably is the high frequency of the word “rt” in the same corpus. As seen in the prediction examples at the end of this report, platform specific words can dominate the predictor, which might not be useful when it is used for other purposes.  Although this predictor is intended for a general purpose, it would be helpful to take this into account when the predictor can detect the purpose of its use.
+
+<br><br><br><br><br><br><br><br><br>
+<center>
+##### Fig. 3 Most Frequent 75 Non Stop Words in the prepreprocessed corpus 
+
+```{r cloud, echo=FALSE, fig.width=3.8, fig.height=3.8}
+## add fig.width=9.5, fig.height=3.5 in chunk settings to make a square cloud
+require(RColorBrewer)
+pal = brewer.pal(8,"Dark2")
+relfreq <- round(cleanNonStop$freq/(corporaStats[3,5]*(10^2)))
+wordcloud(cleanNonStop$word, relfreq, max.words = 75, 
+          colors = pal, random.order=F, rot.per=0.4)
+box(which = "outer")
+```
+</center>
+</div>
+<br>
+```{r nonStopTable, echo=FALSE}
+nonStop <- cbind(blog=blogNonStop[1:most,], news=newsNonStop[1:most,], 
+                 twitter=twitNonStop[1:most,], total=cleanNonStop[1:most,])
+relativeFreq <- sweep(nonStop[,c(2,4,6,8)], MARGIN=2, 
+                              corporaStats[3,c(1:3, 5)], "/" )/100
+nonStop[,c(2,4,6,8)] <- round(relativeFreq, 2)
+nonStop <- cbind(Rank=c(1:most), nonStop)
+nonStopNames <- c("Rank", rep(c("Word", "Rel. Freq."), 4))
+kable(nonStop, format = "html", 
+      caption = "Table 3. Most Frequent non-Stop Words by Corpora", 
+      col.names = nonStopNames) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed", "bordered"),
+                full_width = F) %>%
+  add_header_above(c(" " = 1, "Blog" = 2, "News" = 2, "Twitter" = 2, 
+                     "Total (proc.)" = 2)) %>%
+    column_spec(1, bold = TRUE) %>%
+    add_footnote(c("Frequency relative to 10,000 words"), notation = "alphabet")
+rm(blogWords, newsWords, twitWords, cleanWords, relfreq, relativeFreq, pal,
+   stopList, trim, nonStopNames, idx)
+```
+
+### Higher Order ngrams
+
+```{r orig3gram, echo=FALSE}
+orig3 <- head(origcorpus3gram, most)
+pcntO3 <- 3*100*orig3$freq/(as.numeric(corporaStats[3,4])*10^6)
+pcntO3 <- paste(sprintf("%.3f", pcntO3), "%", sep="")
+oc3 <- ggplot(orig3, aes(x=reorder(ngrams,-freq), y=freq/(10^3), fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() + guides(fill=FALSE) +
+    xlab("Trigrams") + ylab("Frequency (Thousands)") +
+    labs(title="Original Corpus Most Frequent Trigrams") + 
+    theme(axis.text.x = element_text(angle = 25, hjust = 1)) +
+    scale_fill_gradient(low="#cc66cc",high="#602060") +
+    geom_text(aes(label=pcntO3), position=position_dodge(width=.7), 
+              vjust=-0.2, size=3)
+```
+
+**Fig 4** shows the most frequent trigrams found in the two total corpora. Compared to single words, even the most frequent higher ngrams by themselves cover very little of the total corpus. 
+
+##### Fig. 4 Most Frequent Trigrams in Aggregate Corpora
+```{r clean1, echo=FALSE, fig.width=10, fig.height=4}
+wordsTotal <- as.numeric(corporaStats[3,5])*10^6
+
+clean3 <- head(cleancorpus3gram, most)
+pcntC3 <- 3*100*clean3$freq/(wordsTotal)
+pcntC3 <- paste(sprintf("%.3f", pcntC3), "%", sep="")
+cc3 <- ggplot(clean3, aes(x=reorder(ngrams,-freq), y=freq/(10^3), fill=freq)) +
+    geom_bar(stat="identity") +
+    theme_bw() + guides(fill=FALSE) +
+    xlab("Trigrams") + ylab("Frequency (Thousands)") +
+    labs(title="Processed Corpus Most Frequent Trigrams") + 
+    theme(axis.text.x = element_text(angle = 25, hjust = 1)) +
+    scale_fill_gradient(low="#ff4da6",high="#cc0066") +
+    geom_text(aes(label=pcntC3), position=position_dodge(width=.7), 
+              vjust=-0.2, size=3)
+
+grid.arrange(oc3, cc3, ncol = 2)
+rm(orig3, pcntO3, clean3, pcntC3, wordsTotal)
+```
+
+**Table 4** shows a very large-fold increase of bigrams compared to single words. However, this type of increase is more limited for higher order ngrams. Preprocessing decreases considerably the number of unique higher ngrams.   
+
+```{r ngramsTable, echo=FALSE}
+gramCounts <- ngramCounts/10^6        ## convert to millions
+rownames(gramCounts) <- c("Words ", "Bigrams ", "Trigrams ")
+colnames(gramCounts) <- betterNames
+kable(gramCounts, format = "html", align=c(rep('r', 8)), digits = 2, 
+      caption = "Table 4. Word and ngram Counts (Millions)" ) %>%
+  kable_styling(bootstrap_options = c("striped", "condensed", "bordered"),
+                full_width = F) %>%
+    column_spec(1, bold = T)
+rm(betterNames, most)
+```
+### Basic ngram Predictor
+
+The examples below use a Markov-chain trigram algorithm to offer up to 3 options as a next word. Frequent trigrams from the preprocessed corpus are paired with a list of up to 3 most likely words to follow. The basic algorithm takes the last 3 input words in their input order and offers up to 3 suggestions. 
+
+```{r function, echo=FALSE}
+predict.next.word  <- function (x) {
+    require(ngram)
+    x <- tolower(x)
+    wc  <- wordcount(x)
+    if (wc > 3){
+        x <- unlist(strsplit(x, " "))
+        x <- paste(x[(wc-2)], x[(wc-1)], x[wc], sep = " ")
+    }
+    index   <- grep(x, pcode$phrase)
+    inputID <- pcode[index, 1]
+    index   <- which(pred$idPhrase == as.numeric(inputID[1,1]))
+    index   <- pred$idWord[index]
+    as.character(wcode$word[index])
+}
+```
+
+<div class="col2">
+```{r test, echo=TRUE}
+predict.next.word("in the United")
+predict.next.word("the most beautiful")
+predict.next.word("this is my")
+predict.next.word("This is my last")
+predict.next.word("well, but when are you")
+predict.next.word("Thank you for the")
+```
+</div>
+
+### Continuing Predictor Plans
+
+The current plan is to use a Markov-chain ngram algorithm to offer 3 options as a next word. Single words, bigrams, and trigrams will be paired with a list of up to 3 most likely words to follow. The algorithm would build the highest ngram possible from the last 3, 2, or 1 input words in their input order. If less than 3 suggestions are found, it will continue to the second highest ngram and so on until 3 unique suggestions are found. 
+
+Likely steps are as follows: 
+
+* Replace part of the corpora with more updated corpora.
+* Use corpora from news sources and the English Wikipedia to learn grammar for the output dictionary and offer more correct suggestions.
+* Rescind from storing bigram and higher ngram lists to minimize system strain. Instead, store these with unique codes that the algorithm can translate into to match predictions.
+
+### App Plans  
+
+The plan for the app is to embed the predictor in a the text box. The predictor will then offer 3 choices that the user can click. If the user clicks one of the options, that option will be inserted in the text box.  
+
+
+
