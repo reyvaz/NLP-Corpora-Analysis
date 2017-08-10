@@ -1,5 +1,5 @@
 
-[**CLICK HERE to see report in html**](https://reyvaz.github.io/MachineLearningWL/barbellRmd.html)  
+[**CLICK HERE to see report in html**](https://reyvaz.github.io/NPL-Corpora-Analysis/exploration_report.html)  
 
 
 ## Introduction
@@ -11,13 +11,14 @@ The corpora analyzed were originally collected by a web crawler from publicly av
 
 The code in this repository ...
   
-* The rendered html version of the analysis can be found here  [here](https://reyvaz.github.io/MachineLearningWL/barbellRmd.html). 
+* The rendered html version of the analysis can be found here  [here](https://reyvaz.github.io/NPL-Corpora-Analysis/exploration_report.html). 
 
-* To reproduce the results, place the downloaded data files and...
+* To reproduce the report:
+	* Clone this directory into your computer excluding the `reportWorkspace.Rdata` file. 
+	* Download the corpora database from [here](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip) and extract the `en_US.blogs.txt`, `en_US.news.txt`, `en_US.twitter.txt` files and place them in a data folder in the clone directory. 
+	* Modify the directory paths in the `report_dataGenerator.R` and `exploration_report.Rmd` files.
 
-* The file [barbellRmd.md](barbellRmd.md) contains the code and output rendered in a markdown file. 
-
-* [GitHub Pages Link](https://reyvaz.github.io/MachineLearningWL/)
+* [GitHub Pages Link](https://reyvaz.github.io/NPL-Corpora-Analysis/)
 
 
 
