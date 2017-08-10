@@ -1,5 +1,5 @@
 
-[**CLICK HERE to see report in html**](https://reyvaz.github.io/NPL-Corpora-Analysis/exploration_report.html)  
+[**CLICK HERE to see report in html**](https://reyvaz.github.io/NLP-Corpora-Analysis/exploration_report.html)  
 
 
 ## Introduction
@@ -18,7 +18,7 @@ The code in this repository ...
 	* Download the corpora database from [here](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip) and extract the `en_US.blogs.txt`, `en_US.news.txt`, `en_US.twitter.txt` files and place them in a data folder in the clone directory. 
 	* Modify the directory paths in the `report_dataGenerator.R` and `exploration_report.Rmd` files.
 
-* [GitHub Pages Link](https://reyvaz.github.io/NPL-Corpora-Analysis/)
+* [GitHub Pages Link](https://reyvaz.github.io/NLP-Corpora-Analysis/)
 
 
 
