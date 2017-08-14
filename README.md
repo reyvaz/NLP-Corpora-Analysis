@@ -13,8 +13,8 @@ The scripts are designed to optimize speed in small systems by breaking out corp
 * The rendered html version of the analysis can be found here  [here](https://reyvaz.github.io/NPL-Corpora-Analysis/exploration_report.html).   
 
 * To recreate the html report:
-	* Include [exploration_report.Rmd](exploration_report.Rm)  and [reportWorkspace.Rdata](reportWorkspace.Rdata) in your directory. 
-	* Source [exploration_report.Rmd](exploration_report.Rm).  
+	* Include [exploration_report.Rmd](exploration_report.Rmd)  and [reportWorkspace.Rdata](reportWorkspace.Rdata) in your directory. 
+	* Source `exploration_report.Rmd`.  
 	
 * To recreate the report from scratch:
 	* Clone this directory excluding the `reportWorkspace.Rdata` file. 
