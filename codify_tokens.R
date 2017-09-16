@@ -1,4 +1,4 @@
-codify.tokens <- function(x, wordCode = NULL) {
+codify.tokens <- function(x) {
     # Assigns IDs to each ngram token and to each onegram token in an  
     # ngram:onegram pairs table 
     #

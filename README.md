@@ -6,7 +6,7 @@
 
 This repository contains the R code for the preliminary analysis of three English language corpora with the purpose of building a word predictor. 
 
-The corpora were originally collected by a web crawler from publicly available news, personal blogs, and  twitter posts. More information [here](https://web-beta.archive.org/web/20160930083655/http://www.corpora.heliohost.org/aboutcorpus.html). The corpora can be downloaded [here](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip). 
+The corpora were provided by Swiftkey and were originally collected by a web crawler from publicly available news, personal blogs, and  twitter posts. More information [here](https://web-beta.archive.org/web/20160930083655/http://www.corpora.heliohost.org/aboutcorpus.html). The corpora can be downloaded [here](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip). 
 
 The scripts are designed to optimize speed in small systems by breaking out corpora and regularly disposing of data when the statistic of interest has been recorded.  
 
@@ -22,7 +22,13 @@ The scripts are designed to optimize speed in small systems by breaking out corp
 	* Note: [badstems.txt](badstems.txt) and [badwords.txt](badwords.txt), which filter common profanity, were purposely left empty from this public repo. A few statistics might difer slightly. Populate these or contact me for the original lists.  
 	
 
-[GitHub Pages Link](https://reyvaz.github.io/NLP-Corpora-Analysis/)
+[GitHub Pages Link](https://reyvaz.github.io/NLP-Corpora-Analysis/)  
+<br><br>
 
+<center>
+<a href="https://reyvaz.github.io/NLP-Corpora-Analysis/exploration_report.html" rel="see html report">
+<img src="exploration_report_files/figure-html/cloud-1.png" alt="Drawing" 
+style="width: 400px;"/></a>
+</center>
 
-
+<br><br>

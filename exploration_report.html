@@ -960,6 +960,7 @@ Trigrams
 <div id="continuing-predictor-plans" class="section level3">
 <h3>Continuing Predictor Plans</h3>
 <p>The current plan is to use a Markov-chain ngram algorithm to offer 3 options as a next word. Single words, bigrams, and trigrams will be paired with a list of up to 3 most likely words to follow. The algorithm would build the highest ngram possible from the last 3, 2, or 1 input words in their input order. If less than 3 suggestions are found, it will continue to the second highest ngram and so on until 3 unique suggestions are found.</p>
+<p><strong>UPDATE:</strong> The final word predictor uses up to tetragrams. Besides the back-off strategies described above, it attempts to correct spellings and phrases before “giving up”. Additionally, it offers suggestions to complete, or correct, the word being typed (i.e. the current word). Links to the final project will be uploaded soon.</p>
 <p>Likely steps are as follows:</p>
 <ul>
 <li>Replace part of the corpora with more updated corpora.</li>
