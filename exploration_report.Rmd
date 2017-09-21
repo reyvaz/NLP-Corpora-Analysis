@@ -419,7 +419,8 @@ predict.next.word("Thank you for the")
 
 The current plan is to use a Markov-chain ngram algorithm to offer 3 options as a next word. Single words, bigrams, and trigrams will be paired with a list of up to 3 most likely words to follow. The algorithm would build the highest ngram possible from the last 3, 2, or 1 input words in their input order. If less than 3 suggestions are found, it will continue to the second highest ngram and so on until 3 unique suggestions are found. 
 
-**UPDATE:** The final word predictor uses up to tetragrams. Besides the back-off strategies described above, it attempts to correct spellings and phrases before "giving up". Additionally, it offers suggestions to complete, or correct, the word being typed (i.e. the current word). Links to the final project will be uploaded soon. 
+**UPDATE:** The final word predictor uses up to tetragrams. Besides the back-off strategies described above, it attempts to correct spellings and phrases before "giving up". Additionally, it offers suggestions to complete, or correct, the word being typed (i.e. the current word).
+See the final project [here](https://reyvaz.github.io/NLP-English-Predictor/).
 
 Likely steps are as follows: 
 
@@ -430,3 +431,7 @@ Likely steps are as follows:
 ### App Plans  
 
 The plan for the app is to embed the predictor in a the text box. The predictor will then offer 3 choices that the user can click. If the user clicks one of the options, that option will be inserted in the text box.  
+
+UPDATE: See the final app [here](https://rvaz.shinyapps.io/english_predictor/).
+
+<br>
