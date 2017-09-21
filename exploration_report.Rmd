@@ -432,6 +432,6 @@ Likely steps are as follows:
 
 The plan for the app is to embed the predictor in a the text box. The predictor will then offer 3 choices that the user can click. If the user clicks one of the options, that option will be inserted in the text box.  
 
-UPDATE: See the final app [here](https://rvaz.shinyapps.io/english_predictor/).
+**UPDATE**: See the final app [here](https://rvaz.shinyapps.io/english_predictor/).
 
 <br>

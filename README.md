@@ -31,5 +31,3 @@ rel="see html report">
 <img src="exploration_report_files/figure-html/cloud-1.png" alt="Drawing" width = "350"></a>
 </p>
 <br>
-<hr>
-<br>
