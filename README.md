@@ -23,12 +23,13 @@ The scripts are designed to optimize speed in small systems by breaking out corp
 	
 
 [GitHub Pages Link](https://reyvaz.github.io/NLP-Corpora-Analysis/)  
-<br><br>
 
-<center>
-<a href="https://reyvaz.github.io/NLP-Corpora-Analysis/exploration_report.html" rel="see html report">
-<img src="exploration_report_files/figure-html/cloud-1.png" alt="Drawing" 
-style="width: 400px;"/></a>
-</center>
-
-<br><br>
+<br>
+<p align="center">
+<a href="https://reyvaz.github.io/NLP-Corpora-Analysis/exploration_report.htm" 
+rel="see html report">
+<img src="exploration_report_files/figure-html/cloud-1.png" alt="Drawing" width = "350"></a>
+</p>
+<br>
+<hr>
+<br>
