@@ -26,7 +26,7 @@ The scripts are designed to optimize speed in small systems by breaking out corp
 
 <br>
 <p align="center">
-<a href="https://reyvaz.github.io/NLP-Corpora-Analysis/exploration_report.htm" 
+<a href="https://reyvaz.github.io/NLP-Corpora-Analysis/exploration_report.html" 
 rel="see html report">
 <img src="exploration_report_files/figure-html/cloud-1.png" alt="Drawing" width = "350"></a>
 </p>
